@@ -23,8 +23,8 @@ In order to use the Twitter API* to gather data, you need to create a "Twitter a
 ### Using the token info in R
 
 ```r
-consumerKey <- "XXXXXXXXXXXX"
-consumerSecret <- "YYYYYYYYYYYYYYYYYYY"
+consumerKey = "XXXXXXXXXXXX"
+consumerSecret = "YYYYYYYYYYYYYYYYYYY"
 accessToken = "ZZZZZZZZZZZZZZ"
 accessSecret = "AAAAAAAAAAAAAAAAAA"
 
