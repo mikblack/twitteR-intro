@@ -8,6 +8,14 @@ It borrows heavily from multiple sources:
  - http://www.rdatamining.com/docs/r-and-data-mining-examples-and-case-studies
  - http://www.r-bloggers.com/playing-with-twitter-data/
 
+### R libraries
+
+The main R package used during this session is `twitteR`.  You can install this via:
+
+```r
+install.packages("twitteR", repos="http://cran.stat.auckland.ac.nz")
+```
+
 ### Getting started
 
 In order to use the Twitter API* to gather data, you need to create a "Twitter app" (you also need a Twitter account).  This process generates an authentication tiken that can be used from within R to gain access to tweet data via the API.
