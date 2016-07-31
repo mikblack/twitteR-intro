@@ -18,7 +18,7 @@ In order to use the Twitter API* to gather data, you need to create a "Twitter a
  - Step 4: agree to user conditions
  - Step 5: get key and token information from "Keys and Access Tokens" tab: copy these and paste them into the R code below.
 
- *API = Application program interface: set of routine definitions, protocols, and tools for building software and applications. A good API makes it easier to develop a program by providing all the building blocks, which are then put together by the programmer (https://en.wikipedia.org/wiki/Application_programming_interface).
+ *API = Application program interface: "set of routine definitions, protocols, and tools for building software and applications. A good API makes it easier to develop a program by providing all the building blocks, which are then put together by the programmer": https://en.wikipedia.org/wiki/Application_programming_interface
 
 ### Using the token info in R
 
