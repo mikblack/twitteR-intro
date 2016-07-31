@@ -40,3 +40,13 @@ library(twitteR)
 setup_twitter_oauth(consumer_key=consumerKey, consumer_secret=consumerSecret,
 		    access_token=accessToken, access_secret=accessSecret)
 ```
+
+### Using the R twitteR package
+
+Once the token information is set up, it can be used to query timeline data via the twitter API.
+
+The code and instructions for this session are contained in the `twitteR-intro.Rmd` and `twitteR-intro.html` files in this repository.  Rendered HTML:
+
+https://rawgit.com/mikblack/twitteR-intro/master/twitteR-intro.html
+
+
