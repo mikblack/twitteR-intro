@@ -1,0 +1,221 @@
+---
+title: "TwitteR: introductory session"
+author: "Mik Black"
+date: "2 August 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This material covers a VERY basic introduction to some of the functionality provided by the `twitteR` package for R.
+
+It borrows heavily from multiple sources: 
+
+ - https://github.com/pablobarbera/social-media-workshop
+ - http://www.rdatamining.com/docs/r-and-data-mining-examples-and-case-studies
+ - http://www.r-bloggers.com/playing-with-twitter-data/
+
+### R libraries
+
+The main R package used during this session is `twitteR`.  You can install this via:
+
+```{r eval=FALSE}
+install.packages("twitteR", repos="http://cran.stat.auckland.ac.nz")
+```
+
+### Getting started
+
+In order to use the Twitter API* to gather data, you need to create a "Twitter app" (you also need a Twitter account).  This process generates an authentication tiken that can be used from within R to gain access to tweet data via the API.
+
+ - Step 1: go to apps.twitter.com and sign in
+ - Step 2: click on "Create New App"
+ - Step 3: fill name, description, and website (it can be any website): make sure you leave 'Callback URL' empty.
+ - Step 4: agree to user conditions
+ - Step 5: get key and token information from "Keys and Access Tokens" tab: copy these and paste them into the R code below.
+
+ *API = Application program interface: "set of routine definitions, protocols, and tools for building software and applications. A good API makes it easier to develop a program by providing all the building blocks, which are then put together by the programmer": https://en.wikipedia.org/wiki/Application_programming_interface
+
+### Using the token info in R
+
+```{r eval=FALSE}
+consumerKey = "XXXXXXXXXXXX"
+consumerSecret = "YYYYYYYYYYYYYYYYYYY"
+accessToken = "ZZZZZZZZZZZZZZ"
+accessSecret = "AAAAAAAAAAAAAAAAAA"
+
+library(twitteR)
+setup_twitter_oauth(consumer_key=consumerKey, consumer_secret=consumerSecret,
+		    access_token=accessToken, access_secret=accessSecret)
+```
+
+### Using the twitteR package
+
+The first step is to send the authentication information to twitter.
+
+__NB: I'm assuming that we are starting from this point, and the code above hasn't yet been run.__
+
+```{r}
+rm(list=ls())
+library(twitteR)
+
+## Enter your key/token info below
+consumerKey = "XXXXXXXXXXXX"
+consumerSecret = "YYYYYYYYYYYYYYYYYYY"
+accessToken = "ZZZZZZZZZZZZZZ"
+accessSecret = "AAAAAAAAAAAAAAAAAA"
+
+## Alternative: save key/token info to separate file 
+source('myKeyData.R')
+
+## Authenticate with Twitter
+setup_twitter_oauth(consumer_key=consumerKey, consumer_secret=consumerSecret,
+                    access_token=accessToken, access_secret=accessSecret)
+```
+
+Once the token information is set up, it can be used to query timeline data via the twitter API.  Let's make a basic query to retrieve the last tweet that mentioned the word "highlanders".
+
+```{r}
+searchTwitter('highlanders', n=1)
+```
+
+```{r, echo=FALSE, eval=FALSE}
+#########################
+
+# retrieve the first 200 tweets (or all tweets if fewer than 200) from the
+# user timeline of @rdatammining
+rdmTweets <- userTimeline("rdatamining", n=200)
+(nDocs <- length(rdmTweets))
+## Option 2: download @RDataMining tweets from RDataMining.com
+#url <- "http://www.rdatamining.com/data/rdmTweets-201306.RData"
+#download.file(url, destfile = "./data/rdmTweets.RData")
+
+user <- getUser('barackobama')
+potusTweets <- userTimeline(user, n=200)
+(nDocs <- length(potusTweets))
+
+potusTweets[1:5]
+
+# convert tweets to a data frame
+df <- twListToDF(potusTweets)
+dim(df)
+
+library(tm)
+# build a corpus, and specify the source to be character vectors
+myCorpus <- Corpus(VectorSource(df$text))
+
+## convert to lower case
+# tm v0.6
+myCorpus <- tm_map(myCorpus, content_transformer(tolower))
+removeURL <- function(x) gsub("http[^[:space:]]*", "", x)
+# tm v0.6
+myCorpus <- tm_map(myCorpus, content_transformer(removeURL))
+
+
+###########################
+
+#user <- getUser('realDonaldTrump')
+#user <- getUser('barackobama')
+
+obamaTweets <- userTimeline("BarackObama", n=3200)
+trumpTweets <- userTimeline("realDonaldTrump", n=3200)
+clintonTweets <- userTimeline("HillaryClinton", n=3200)
+
+obamaDf <- twListToDF(obamaTweets)
+trumpDf <- twListToDF(trumpTweets)
+clintonDf <- twListToDF(clintonTweets)
+
+obamaDf$text[1]
+
+#####  
+  
+# loading lexicon of positive and negative words (from Neal Caren)
+lexicon <- read.csv("lexicon.csv", stringsAsFactors=F)
+pos.words <- lexicon$word[lexicon$polarity=="positive"]
+neg.words <- lexicon$word[lexicon$polarity=="negative"]
+
+# a look at a random sample of positive and negative words
+sample(pos.words, 10)
+sample(neg.words, 10)
+
+# function to clean the text
+clean_tweets <- function(text){
+  # loading required packages
+  lapply(c("tm", "Rstem", "stringr"), require, c=T, q=T)
+  # avoid encoding issues by dropping non-unicode characters
+  utf8text <- iconv(text, to='UTF-8-MAC', sub = "byte")
+  # remove punctuation and convert to lower case
+  words <- removePunctuation(utf8text)
+  words <- tolower(words)
+  # spliting in words
+  words <- str_split(words, " ")
+  return(words)
+}
+
+# a function to classify individual tweets
+classify <- function(words, pos.words, neg.words){
+  # count number of positive and negative word matches
+  pos.matches <- sum(words %in% pos.words)
+  neg.matches <- sum(words %in% neg.words)
+  return(pos.matches - neg.matches)
+}
+
+###############
+
+obamaDf$text[1]
+
+## NB - ignore warning about Rstem package?
+obamaText <- clean_tweets(obamaDf$text)
+trumpText <- clean_tweets(trumpDf$text)
+clintonText <- clean_tweets(clintonDf$text)
+
+obamaText[[1]]
+
+#####################
+
+# this is how we would apply it
+classify(obamaText[[1]], pos.words, neg.words)
+classify(trumpText[[1]], pos.words, neg.words)
+
+# but we want to aggregate over many tweets...
+classifier <- function(text, pos.words, neg.words){
+  # classifier
+  scores <- unlist(lapply(text, classify, pos.words, neg.words))
+  n <- length(scores)
+  positive <- as.integer(length(which(scores>0))/n*100)
+  negative <- as.integer(length(which(scores<0))/n*100)
+  neutral <- 100 - positive - negative
+  cat(n, "tweets:", positive, "% positive,",
+      negative, "% negative,", neutral, "% neutral")
+}
+
+# applying classifier function
+classifier(obamaText, pos.words, neg.words)
+classifier(trumpText, pos.words, neg.words)
+classifier(clintonText, pos.words, neg.words)
+
+par(mfrow=c(2,2))
+barplot(table(unlist(lapply(obamaText,classify, pos.words, neg.words))))
+barplot(table(unlist(lapply(trumpText,classify, pos.words, neg.words))))
+barplot(table(unlist(lapply(clintonText,classify, pos.words, neg.words))))
+plot(density(unlist(lapply(obamaText,classify, pos.words, neg.words))))
+     plot(density(unlist(lapply(obamaText,classify, pos.words, neg.words)))
+          
+plot(obamaDf$created, 
+     unlist(lapply(obamaText,classify, pos.words, neg.words)), 
+     type='line')
+
+lines(trumpDf$created, 
+      unlist(lapply(trumpText,classify, pos.words, neg.words)),
+      col='red')
+      
+lines(clintonDf$created, 
+      unlist(lapply(clintonText,classify, pos.words, neg.words)),
+      col='blue')
+
+####
+
+tw = searchTwitter('#nzgenomics', n = 1e4, since = '2016-01-01')
+twDf <- twListToDF(tw)
+```
