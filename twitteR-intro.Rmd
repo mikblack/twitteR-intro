@@ -80,6 +80,59 @@ Once the token information is set up, it can be used to query timeline data via 
 searchTwitter('highlanders', n=1)
 ```
 
+### Examing a twitter timeline
+
+Retrieve the last 20 tweets from the NZ Prime Minister
+
+```{r, cache=TRUE}
+keyTweets <- userTimeline("johnkeypm", n=20)
+```
+
+How many did we get?
+
+```{r}
+length(keyTweets)
+```
+
+Lets look at the first few (most recent)
+
+```{r}
+head(keyTweets)
+```
+
+What type of objects are we dealing with?
+
+```{r}
+class(keyTweets)
+class(keyTweets[[1]])
+```
+
+The tweets are a list of "status" objects that are specific to the twitteR package.  What else can we find out about these?
+
+```{r}
+## Below is equivalent to: getClass("status")
+getClass(class(keyTweets[[1]]))
+```
+
+There are a lot of additional fields of information available for each tweet:
+
+```{r}
+## Display the text of the first tweet
+keyTweets[[1]]$text
+
+## Display the time of the first tweet
+keyTweets[[1]]$created
+```
+
+In order to make access to these fields easier, `twitteR` provides a function to convert the list of tweets into a data frame:
+
+```{r}
+keyTweetsDf <- twListToDF(keyTweets)
+dim(keyTweetsDf)
+keyTweetsDf[1,]
+```
+
+
 ```{r, echo=FALSE, eval=FALSE}
 #########################
 

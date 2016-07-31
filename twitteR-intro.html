@@ -181,7 +181,102 @@ setup_twitter_oauth(consumer_key=consumerKey, consumer_secret=consumerSecret,
 <p>Once the token information is set up, it can be used to query timeline data via the twitter API. Let’s make a basic query to retrieve the last tweet that mentioned the word “highlanders”.</p>
 <pre class="r"><code>searchTwitter('highlanders', n=1)</code></pre>
 <pre><code>## [[1]]
-## [1] &quot;AtlasXIV: Highlanders have the best chests.&quot;</code></pre>
+## [1] &quot;guyfromsamoa: Great to see @LimaSopoaga &amp;amp; the other @Highlanders In there. https://t.co/g1ZfwCGY8M&quot;</code></pre>
+</div>
+<div id="examing-a-twitter-timeline" class="section level3">
+<h3>Examing a twitter timeline</h3>
+<p>Retrieve the last 20 tweets from the NZ Prime Minister</p>
+<pre class="r"><code>keyTweets &lt;- userTimeline(&quot;johnkeypm&quot;, n=20)</code></pre>
+<p>How many did we get?</p>
+<pre class="r"><code>length(keyTweets)</code></pre>
+<pre><code>## [1] 20</code></pre>
+<p>Lets look at the first few (most recent)</p>
+<pre class="r"><code>head(keyTweets)</code></pre>
+<pre><code>## [[1]]
+## [1] &quot;johnkeypm: We’re making changes to help more Kiwis into their first home with a HomeStart grant.\nhttps://t.co/PoV5SUjVwq&quot;
+## 
+## [[2]]
+## [1] &quot;johnkeypm: Welcomed Tongan Prime Minister Samuela ‘Akilisi Pohiva to Auckland this afternoon - his first official visit as PM. https://t.co/5wcxfmT4p1&quot;
+## 
+## [[3]]
+## [1] &quot;johnkeypm: Dropped into Sky Kiwi for an interview – and a selfie. https://t.co/3zWyjz2Dnq&quot;
+## 
+## [[4]]
+## [1] &quot;johnkeypm: On WTV with Dr Jian Yang talking about Auckland's Unitary Plan and the importance of NZ's relationship with China. https://t.co/9z9MXbWrau&quot;
+## 
+## [[5]]
+## [1] &quot;johnkeypm: Exciting to open David Jones' first New Zealand store in Wellington tonight. https://t.co/JJiYMH3pJE&quot;
+## 
+## [[6]]
+## [1] &quot;johnkeypm: Opened Avenue Health today, a new day-stay surgery which is part of the Christchurch rebuild. https://t.co/p64cWYo9T8&quot;</code></pre>
+<p>What type of objects are we dealing with?</p>
+<pre class="r"><code>class(keyTweets)</code></pre>
+<pre><code>## [1] &quot;list&quot;</code></pre>
+<pre class="r"><code>class(keyTweets[[1]])</code></pre>
+<pre><code>## [1] &quot;status&quot;
+## attr(,&quot;package&quot;)
+## [1] &quot;twitteR&quot;</code></pre>
+<p>The tweets are a list of “status” objects that are specific to the twitteR package. What else can we find out about these?</p>
+<pre class="r"><code>## Below is equivalent to: getClass(&quot;status&quot;)
+getClass(class(keyTweets[[1]]))</code></pre>
+<pre><code>## Reference Class &quot;status&quot;:
+## 
+## Class fields:
+##                                                               
+## Name:           text     favorited favoriteCount     replyToSN
+## Class:     character       logical       numeric     character
+##                                                               
+## Name:        created     truncated    replyToSID            id
+## Class:       POSIXct       logical     character     character
+##                                                               
+## Name:     replyToUID  statusSource    screenName  retweetCount
+## Class:     character     character     character       numeric
+##                                                               
+## Name:      isRetweet     retweeted     longitude      latitude
+## Class:       logical       logical     character     character
+##                     
+## Name:           urls
+## Class:    data.frame
+## 
+## Class Methods: 
+##      &quot;setUrls&quot;, &quot;getRetweets&quot;, &quot;getRefClass&quot;, &quot;getUrls&quot;, &quot;setTruncated&quot;, 
+##      &quot;setText&quot;, &quot;getReplyToSID&quot;, &quot;getText&quot;, &quot;export&quot;, &quot;setCreated&quot;, 
+##      &quot;setFavoriteCount&quot;, &quot;getCreated&quot;, &quot;initialize&quot;, &quot;callSuper&quot;, 
+##      &quot;getRetweeters&quot;, &quot;initFields&quot;, &quot;getClass&quot;, &quot;setReplyToUID&quot;, &quot;import&quot;, 
+##      &quot;setLatitude&quot;, &quot;setIsRetweet&quot;, &quot;getFavoriteCount&quot;, &quot;getRetweetCount&quot;, 
+##      &quot;getIsRetweet&quot;, &quot;setId&quot;, &quot;setScreenName&quot;, &quot;getLatitude&quot;, 
+##      &quot;getScreenName&quot;, &quot;toDataFrame#twitterObj&quot;, &quot;setRetweetCount&quot;, 
+##      &quot;setReplyToSID&quot;, &quot;getId&quot;, &quot;getReplyToUID&quot;, &quot;setFavorited&quot;, 
+##      &quot;getRetweeted&quot;, &quot;getFavorited&quot;, &quot;toDataFrame&quot;, &quot;setStatusSource&quot;, 
+##      &quot;setReplyToSN&quot;, &quot;copy&quot;, &quot;usingMethods&quot;, &quot;setRetweeted&quot;, &quot;field&quot;, 
+##      &quot;.objectParent&quot;, &quot;getTruncated&quot;, &quot;untrace&quot;, &quot;trace&quot;, &quot;setLongitude&quot;, 
+##      &quot;getLongitude&quot;, &quot;getStatusSource&quot;, &quot;.objectPackage&quot;, &quot;getReplyToSN&quot;, 
+##      &quot;show&quot;
+## 
+## Reference Superclasses: 
+##      &quot;twitterObj&quot;, &quot;envRefClass&quot;</code></pre>
+<p>There are a lot of additional fields of information available for each tweet:</p>
+<pre class="r"><code>## Display the text of the first tweet
+keyTweets[[1]]$text</code></pre>
+<pre><code>## [1] &quot;We’re making changes to help more Kiwis into their first home with a HomeStart grant.\nhttps://t.co/PoV5SUjVwq&quot;</code></pre>
+<pre class="r"><code>## Display the time of the first tweet
+keyTweets[[1]]$created</code></pre>
+<pre><code>## [1] &quot;2016-07-30 21:33:34 UTC&quot;</code></pre>
+<p>In order to make access to these fields easier, <code>twitteR</code> provides a function to convert the list of tweets into a data frame:</p>
+<pre class="r"><code>keyTweetsDf &lt;- twListToDF(keyTweets)
+dim(keyTweetsDf)</code></pre>
+<pre><code>## [1] 20 16</code></pre>
+<pre class="r"><code>keyTweetsDf[1,]</code></pre>
+<pre><code>##                                                                                                             text
+## 1 We’re making changes to help more Kiwis into their first home with a HomeStart grant.\nhttps://t.co/PoV5SUjVwq
+##   favorited favoriteCount replyToSN             created truncated
+## 1     FALSE            36        NA 2016-07-30 21:33:34     FALSE
+##   replyToSID                 id replyToUID
+## 1         NA 759502219817254912         NA
+##                                                                          statusSource
+## 1 &lt;a href=&quot;https://about.twitter.com/products/tweetdeck&quot; rel=&quot;nofollow&quot;&gt;TweetDeck&lt;/a&gt;
+##   screenName retweetCount isRetweet retweeted longitude latitude
+## 1  johnkeypm           12     FALSE     FALSE        NA       NA</code></pre>
 </div>
 
 
