@@ -181,10 +181,10 @@ setup_twitter_oauth(consumer_key=consumerKey, consumer_secret=consumerSecret,
 <p>Once the token information is set up, it can be used to query timeline data via the twitter API. Let’s make a basic query to retrieve the last tweet that mentioned the word “highlanders”.</p>
 <pre class="r"><code>searchTwitter('highlanders', n=1)</code></pre>
 <pre><code>## [[1]]
-## [1] &quot;guyfromsamoa: Great to see @LimaSopoaga &amp;amp; the other @Highlanders In there. https://t.co/g1ZfwCGY8M&quot;</code></pre>
+## [1] &quot;odtnews: Seven Highlanders were named in the All Blacks' squad for the Rugby Championship.... https://t.co/R8ouCYgX23&quot;</code></pre>
 </div>
-<div id="examing-a-twitter-timeline" class="section level3">
-<h3>Examing a twitter timeline</h3>
+<div id="examining-a-twitter-timeline" class="section level3">
+<h3>Examining a twitter timeline</h3>
 <p>Retrieve the last 20 tweets from the NZ Prime Minister</p>
 <pre class="r"><code>keyTweets &lt;- userTimeline(&quot;johnkeypm&quot;, n=20)</code></pre>
 <p>How many did we get?</p>

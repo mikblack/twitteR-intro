@@ -80,7 +80,7 @@ Once the token information is set up, it can be used to query timeline data via 
 searchTwitter('highlanders', n=1)
 ```
 
-### Examing a twitter timeline
+### Examining a twitter timeline
 
 Retrieve the last 20 tweets from the NZ Prime Minister
 
