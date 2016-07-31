@@ -181,7 +181,7 @@ setup_twitter_oauth(consumer_key=consumerKey, consumer_secret=consumerSecret,
 <p>Once the token information is set up, it can be used to query timeline data via the twitter API. Let’s make a basic query to retrieve the last tweet that mentioned the word “highlanders”.</p>
 <pre class="r"><code>searchTwitter('highlanders', n=1)</code></pre>
 <pre><code>## [[1]]
-## [1] &quot;odtnews: Seven Highlanders were named in the All Blacks' squad for the Rugby Championship.... https://t.co/R8ouCYgX23&quot;</code></pre>
+## [1] &quot;EricaKolat: RT @McGuffeySD: Get ready, Adventure Highlanders @McGuffeyHS and @McGuffey_MS: your trail is installed and waiting for you! https://t.co/bI…&quot;</code></pre>
 </div>
 <div id="examining-a-twitter-timeline" class="section level3">
 <h3>Examining a twitter timeline</h3>
@@ -263,10 +263,14 @@ keyTweets[[1]]$text</code></pre>
 keyTweets[[1]]$created</code></pre>
 <pre><code>## [1] &quot;2016-07-30 21:33:34 UTC&quot;</code></pre>
 <p>In order to make access to these fields easier, <code>twitteR</code> provides a function to convert the list of tweets into a data frame:</p>
-<pre class="r"><code>keyTweetsDf &lt;- twListToDF(keyTweets)
+<pre class="r"><code>## Convert to data frame
+keyTweetsDf &lt;- twListToDF(keyTweets)
+
+## Check dimensions
 dim(keyTweetsDf)</code></pre>
 <pre><code>## [1] 20 16</code></pre>
-<pre class="r"><code>keyTweetsDf[1,]</code></pre>
+<pre class="r"><code>## Examine first row (most recent tweet)
+keyTweetsDf[1,]</code></pre>
 <pre><code>##                                                                                                             text
 ## 1 We’re making changes to help more Kiwis into their first home with a HomeStart grant.\nhttps://t.co/PoV5SUjVwq
 ##   favorited favoriteCount replyToSN             created truncated

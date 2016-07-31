@@ -127,8 +127,13 @@ keyTweets[[1]]$created
 In order to make access to these fields easier, `twitteR` provides a function to convert the list of tweets into a data frame:
 
 ```{r}
+## Convert to data frame
 keyTweetsDf <- twListToDF(keyTweets)
+
+## Check dimensions
 dim(keyTweetsDf)
+
+## Examine first row (most recent tweet)
 keyTweetsDf[1,]
 ```
 
