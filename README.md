@@ -49,4 +49,4 @@ The code and instructions for this session are contained in the `twitteR-intro.R
 
 https://rawgit.com/mikblack/twitteR-intro/master/twitteR-intro.html
 
-Scroll down to "Using the twitteR package" to get started.
+Scroll down to "Using the twitteR package" to get started in R.
