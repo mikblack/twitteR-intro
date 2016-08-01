@@ -169,6 +169,13 @@ sample(pos.words, 10)
 sample(neg.words, 10)
 ```
 
+NB: if you are having trouble downloading the `lexicon.csv` file from GitHub, you can read it in directly by uncommenting and running 
+the following code:
+
+```{r}
+## lexicon <- read.csv("https://raw.githubusercontent.com/mikblack/twitteR-intro/master/lexicon.csv", stringsAsFactors=F)
+```
+
 Next we'll load some helper functions (again, courtesy of the Github repo above) to handle the 
 processing of the tweet data:
 
