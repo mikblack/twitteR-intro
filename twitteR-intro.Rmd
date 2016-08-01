@@ -54,6 +54,17 @@ setup_twitter_oauth(consumer_key=consumerKey, consumer_secret=consumerSecret,
 
 The first step is to send the authentication information to twitter.
 
+Alternatively, you can load the `.RData` file below to load the tweet data that I have already downloaded - that will save 
+you going through the app creation process just to reproduce the results below.
+
+If you want to skip the app creation, and just loading the existing tweet data, uncomment and run the following:
+
+```{r}
+## load('tweetData.RData)
+```
+
+You can then skip ahead to "Examining a twitter timeline" below.  Otherwise, continue with the following...
+
 __NB: I'm assuming that we are starting from this point, and the code above hasn't yet been run.__
 
 ```{r}
@@ -183,7 +194,7 @@ trumpTweets <- userTimeline("realDonaldTrump", n=3200)
 clintonTweets <- userTimeline("HillaryClinton", n=3200)
 ```
 
-```{r}
+```{r, cache=TRUE}
 ## Check lengths
 length(obamaTweets)
 length(trumpTweets)
@@ -329,22 +340,6 @@ This has only just scratched the surface of what can be accomplished by mining t
  - https://www.r-bloggers.com/?s=facebook
  - https://www.r-bloggers.com/?s=instagram
 
-
-```{r, echo=FALSE, eval=FALSE}
-plot(obamaDf$created, 
-     unlist(lapply(obamaText,classify, pos.words, neg.words)), 
-     type='line')
-
-lines(trumpDf$created, 
-      unlist(lapply(trumpText,classify, pos.words, neg.words)),
-      col='red')
-      
-lines(clintonDf$created, 
-      unlist(lapply(clintonText,classify, pos.words, neg.words)),
-      col='blue')
-
-####
-
-tw = searchTwitter('#nzgenomics', n = 1e4, since = '2016-01-01')
-twDf <- twListToDF(tw)
+```{r, eval=TRUE, echo=FALSE}
+save(list=c("trumpTweets","obamaTweets","clintonTweets","keyTweets","tweetObama","tweetTrump","tweetClinton"), file='tweetData.RData')
 ```
