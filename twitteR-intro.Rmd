@@ -137,58 +137,18 @@ dim(keyTweetsDf)
 keyTweetsDf[1,]
 ```
 
+### Sentiment analysis
 
-```{r, echo=FALSE, eval=FALSE}
-#########################
+The idea of "sentiment analysis" can be used to assess the sentiment (e.g., positive or negative) of a tweet.
 
-# retrieve the first 200 tweets (or all tweets if fewer than 200) from the
-# user timeline of @rdatammining
-rdmTweets <- userTimeline("rdatamining", n=200)
-(nDocs <- length(rdmTweets))
-## Option 2: download @RDataMining tweets from RDataMining.com
-#url <- "http://www.rdatamining.com/data/rdmTweets-201306.RData"
-#download.file(url, destfile = "./data/rdmTweets.RData")
+There are a few ways to do this (using additional packages), but we are going to use a "first principles" approach, as taken in this workshop:
 
-user <- getUser('barackobama')
-potusTweets <- userTimeline(user, n=200)
-(nDocs <- length(potusTweets))
+https://github.com/pablobarbera/social-media-workshop
 
-potusTweets[1:5]
+First, lets load a data set of positive and negative words:
 
-# convert tweets to a data frame
-df <- twListToDF(potusTweets)
-dim(df)
-
-library(tm)
-# build a corpus, and specify the source to be character vectors
-myCorpus <- Corpus(VectorSource(df$text))
-
-## convert to lower case
-# tm v0.6
-myCorpus <- tm_map(myCorpus, content_transformer(tolower))
-removeURL <- function(x) gsub("http[^[:space:]]*", "", x)
-# tm v0.6
-myCorpus <- tm_map(myCorpus, content_transformer(removeURL))
-
-
-###########################
-
-#user <- getUser('realDonaldTrump')
-#user <- getUser('barackobama')
-
-obamaTweets <- userTimeline("BarackObama", n=3200)
-trumpTweets <- userTimeline("realDonaldTrump", n=3200)
-clintonTweets <- userTimeline("HillaryClinton", n=3200)
-
-obamaDf <- twListToDF(obamaTweets)
-trumpDf <- twListToDF(trumpTweets)
-clintonDf <- twListToDF(clintonTweets)
-
-obamaDf$text[1]
-
-#####  
-  
-# loading lexicon of positive and negative words (from Neal Caren)
+```{r}
+# loading lexicon of positive and negative words (from Github repo above)
 lexicon <- read.csv("lexicon.csv", stringsAsFactors=F)
 pos.words <- lexicon$word[lexicon$polarity=="positive"]
 neg.words <- lexicon$word[lexicon$polarity=="negative"]
@@ -196,70 +156,181 @@ neg.words <- lexicon$word[lexicon$polarity=="negative"]
 # a look at a random sample of positive and negative words
 sample(pos.words, 10)
 sample(neg.words, 10)
+```
 
-# function to clean the text
-clean_tweets <- function(text){
-  # loading required packages
-  lapply(c("tm", "Rstem", "stringr"), require, c=T, q=T)
-  # avoid encoding issues by dropping non-unicode characters
-  utf8text <- iconv(text, to='UTF-8-MAC', sub = "byte")
-  # remove punctuation and convert to lower case
-  words <- removePunctuation(utf8text)
-  words <- tolower(words)
-  # spliting in words
-  words <- str_split(words, " ")
-  return(words)
-}
+Next we'll load some helper functions (again, courtesy of the Github repo above) to handle the 
+processing of the tweet data:
 
-# a function to classify individual tweets
-classify <- function(words, pos.words, neg.words){
-  # count number of positive and negative word matches
-  pos.matches <- sum(words %in% pos.words)
-  neg.matches <- sum(words %in% neg.words)
-  return(pos.matches - neg.matches)
-}
+```{r}
+## Load helper functions
+source('twitteR-intro-helper-functions.R')
+```
 
-###############
+The functions are:
 
-obamaDf$text[1]
+ - `clean_tweets`: split each tweet into individual words, and remove special characters.
+ - `classify`: score the overall "positivity" or "negativity" of a tweet, based 
+    on the numbers of positive and negative words it contains.
+ - `classifer`: applies the `classify` function to a collection of tweets, and 
+    returns aggregated statistics.
 
-## NB - ignore warning about Rstem package?
+Before we get started on our sentiment analysis, let's generate some more data:
+
+```{r, cache=TRUE}
+## Retrieve tweet data for Obama, Trump and Clinton.
+obamaTweets <- userTimeline("BarackObama", n=3200)
+trumpTweets <- userTimeline("realDonaldTrump", n=3200)
+clintonTweets <- userTimeline("HillaryClinton", n=3200)
+```
+
+```{r}
+## Check lengths
+length(obamaTweets)
+length(trumpTweets)
+length(clintonTweets)
+
+## Convert each list to a data frame
+obamaDf <- twListToDF(obamaTweets)
+trumpDf <- twListToDF(trumpTweets)
+clintonDf <- twListToDF(clintonTweets)
+```
+
+Now apply the helper fuctions to our data.
+
+```{r}
+## Clean tweets
 obamaText <- clean_tweets(obamaDf$text)
 trumpText <- clean_tweets(trumpDf$text)
 clintonText <- clean_tweets(clintonDf$text)
+```
 
-obamaText[[1]]
+What did that do?
+```{r}
+## Original tweet
+obamaDf$text[1]
 
-#####################
+## Clean tweet
+obamaText[1]
+```
 
-# this is how we would apply it
+```{r, fig.height=8}
+par(mfrow=c(2,2))
+## Histograms of tweet length
+hist(unlist(lapply(obamaText,length)), col=grey(0.8), main="Obama: tweet lengths")
+hist(unlist(lapply(trumpText,length)), col='lightpink', main="Trump: tweet lengths")
+hist(unlist(lapply(clintonText,length)), col='lightblue', main="Clinton: tweet lengths")
+
+## Tweet length density plots
+plot(density(unlist(lapply(obamaText,length))), main="Tweet length densities")
+lines(density(unlist(lapply(trumpText,length))), col='red')
+lines(density(unlist(lapply(clintonText,length))), col='blue')
+legend('topleft', c("Obama","Trump","Clinton"), fill=c("black", "red", "blue"))
+```
+
+### Sentiment analysis
+
+Use the `classify` function to assess the positive/negative content of a tweet:
+
+```{r}
 classify(obamaText[[1]], pos.words, neg.words)
-classify(trumpText[[1]], pos.words, neg.words)
+```
 
-# but we want to aggregate over many tweets...
-classifier <- function(text, pos.words, neg.words){
-  # classifier
-  scores <- unlist(lapply(text, classify, pos.words, neg.words))
-  n <- length(scores)
-  positive <- as.integer(length(which(scores>0))/n*100)
-  negative <- as.integer(length(which(scores<0))/n*100)
-  neutral <- 100 - positive - negative
-  cat(n, "tweets:", positive, "% positive,",
-      negative, "% negative,", neutral, "% neutral")
+Apply to all tweets (for once I won't use `lapply`...):
+
+```{r}
+## Calculate scores for every Obama tweet
+obamaScore <- c()
+for(i in 1:length(obamaText)){
+  obamaScore[i] <- classify(obamaText[[i]], pos.words, neg.words)
 }
+## Display scores
+obamaScore
+## What was the range of scores?
+range(obamaScore)
 
+## Which was the highest score?
+which.max(obamaScore)
+## What was that tweet?
+obamaTweets[[which.max(obamaScore)]]
+
+## Which was the lowest score?
+which.min(obamaScore)
+## What was that tweet?
+obamaTweets[[which.min(obamaScore)]]
+```
+
+Sentiment analysis seems to be an inexact art...
+
+__Challenge: what were Donald Trump's most positive and most negative tweets?__
+
+```{r, echo=FALSE, eval=FALSE}
+trumpScore <- c()
+for(i in 1:length(trumpText)){
+  trumpScore[i] <- classify(trumpText[[i]], pos.words, neg.words)
+}
+## Display scores
+trumpScore
+## What was the range of scores?
+range(trumpScore)
+
+## Which was the highest score?
+which.max(trumpScore)
+## What was that tweet?
+trumpTweets[[which.max(trumpScore)]]
+
+## Which was the lowest score?
+which.min(trumpScore)
+## What was that tweet?
+trumpTweets[[which.min(trumpScore)]]
+```
+
+### Sentiment analysis: final task
+
+Apply the `classifier` function to aggregate scores across all tweets for each user.
+
+```{r}
 # applying classifier function
 classifier(obamaText, pos.words, neg.words)
 classifier(trumpText, pos.words, neg.words)
 classifier(clintonText, pos.words, neg.words)
+```
 
-par(mfrow=c(2,2))
-barplot(table(unlist(lapply(obamaText,classify, pos.words, neg.words))))
-barplot(table(unlist(lapply(trumpText,classify, pos.words, neg.words))))
-barplot(table(unlist(lapply(clintonText,classify, pos.words, neg.words))))
-plot(density(unlist(lapply(obamaText,classify, pos.words, neg.words))))
-     plot(density(unlist(lapply(obamaText,classify, pos.words, neg.words)))
-          
+## Searching twitter
+
+We can also search twitter for particular words (including hashtags), using the `searchTwitter` function.
+The code below searches for the last 1000 tweets containing "donaldtrump" "barrackobama" or "hillaryclinton".  Using the commands we learned above, we can then perform a sentiment analysis for the tweets relating to each search term.
+
+```{r, cache=TRUE}
+tweetTrump = searchTwitter('donaldtrump', n = 1000)
+tweetTrumpDf <- twListToDF(tweetTrump)
+tweetTrumpText <- clean_tweets(tweetTrumpDf$text)
+classifier(tweetTrumpText, pos.words, neg.words)
+```
+
+```{r, cache=TRUE}
+tweetObama = searchTwitter('barackobama', n = 1000)
+tweetObamaDf <- twListToDF(tweetObama)
+tweetObamaText <- clean_tweets(tweetObamaDf$text)
+classifier(tweetObamaText, pos.words, neg.words)
+```
+
+```{r, cache=TRUE}
+tweetClinton = searchTwitter('hillaryclinton', n = 1000)
+tweetClintonDf <- twListToDF(tweetClinton)
+tweetClintonText <- clean_tweets(tweetClintonDf$text)
+classifier(tweetClintonText, pos.words, neg.words)
+```
+
+## Final thoughts
+
+This has only just scratched the surface of what can be accomplished by mining twitter data (or Facebook, or Instagram).  Have a look at the following links (rbloggers articles) for some more ideas: 
+
+ - https://www.r-bloggers.com/?s=twitter
+ - https://www.r-bloggers.com/?s=facebook
+ - https://www.r-bloggers.com/?s=instagram
+
+
+```{r, echo=FALSE, eval=FALSE}
 plot(obamaDf$created, 
      unlist(lapply(obamaText,classify, pos.words, neg.words)), 
      type='line')
