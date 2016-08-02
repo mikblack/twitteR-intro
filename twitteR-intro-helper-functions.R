@@ -1,13 +1,12 @@
 ## Helper functions to process tweets and perform sentiment analysis
 ## Code downloaded/adapted from:
 ##   https://github.com/pablobarbera/social-media-workshop
-#install.packages('tm')
 # function to clean the text
 clean_tweets <- function(text){
   # loading required packages
   lapply(c("tm", "stringr"), require, c=T, q=T)
   # avoid encoding issues by dropping non-unicode characters
-  utf8text <- iconv(text, to='UTF-8', sub = "byte")
+  utf8text <- iconv(text, to='UTF-8-MAC', sub = "byte")
   # remove punctuation and convert to lower case
   words <- removePunctuation(utf8text)
   words <- tolower(words)
